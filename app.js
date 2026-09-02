@@ -66,33 +66,41 @@ const CARD_THEMES = {
 
 let selectedTheme = "blue";
 
-function setProgress(percent) {
-  const status = document.getElementById("status");
-  const generateBtn = document.getElementById("generateBtn");
 
-  const value = Math.max(
-    0,
-    Math.min(
-      100,
-      Math.round(percent)
-    )
-  );
+function setProgress(percent) {
+  const generateBtn =
+    document.getElementById("generateBtn");
+
+  const status =
+    document.getElementById("status");
+
+  const value =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(percent)
+      )
+    );
 
   if (status) {
     status.innerText = "";
   }
 
   if (generateBtn) {
-    generateBtn.innerText = `${value}%`;
+    generateBtn.innerText =
+      `${value}%`;
   }
 }
+
 
 async function apiGet(
   endpoint,
   params = {},
   base = API
 ) {
-  const query = new URLSearchParams();
+  const query =
+    new URLSearchParams();
 
   for (
     const [key, value]
@@ -109,9 +117,10 @@ async function apiGet(
     }
   }
 
-  const response = await fetch(
-    `${base}/${endpoint}?${query.toString()}`
-  );
+  const response =
+    await fetch(
+      `${base}/${endpoint}?${query.toString()}`
+    );
 
   if (!response.ok) {
     let message =
@@ -133,8 +142,10 @@ async function apiGet(
   return response.json();
 }
 
+
 function getSinceDate() {
-  const date = new Date();
+  const date =
+    new Date();
 
   date.setDate(
     date.getDate() -
@@ -144,22 +155,35 @@ function getSinceDate() {
   return date;
 }
 
+
 async function resolveHandle(handle) {
   const data =
     await apiGet(
       "com.atproto.identity.resolveHandle",
-      { handle }
+      {
+        handle
+      }
     );
+
+  if (!data.did) {
+    throw new Error(
+      "Unable to resolve this Bluesky handle."
+    );
+  }
 
   return data.did;
 }
 
+
 async function getProfile(did) {
   return apiGet(
     "app.bsky.actor.getProfile",
-    { actor: did }
+    {
+      actor: did
+    }
   );
 }
+
 
 async function getPdsEndpoint(did) {
   let didDocument;
@@ -231,12 +255,14 @@ async function getPdsEndpoint(did) {
   );
 }
 
+
 async function getAllFollows(
   myDid,
   progressStart = 5,
   progressEnd = 15
 ) {
-  const follows = new Set();
+  const follows =
+    new Set();
 
   let cursor = null;
   let pages = 0;
@@ -290,15 +316,18 @@ async function getAllFollows(
   return follows;
 }
 
+
 async function listRecords(
   pds,
   did,
   collection,
   sinceDate
 ) {
-  const records = [];
+  const records =
+    [];
 
-  let cursor = null;
+  let cursor =
+    null;
 
   while (true) {
     const params = {
@@ -370,6 +399,7 @@ async function listRecords(
   return records;
 }
 
+
 function ensureContact(
   contacts,
   actor,
@@ -437,6 +467,7 @@ function ensureContact(
   return contacts[actor.did];
 }
 
+
 function addInteraction(
   contacts,
   actor,
@@ -481,6 +512,7 @@ function addInteraction(
   contact.interactions++;
 }
 
+
 function calculateFinalScores(
   contacts
 ) {
@@ -513,6 +545,7 @@ function calculateFinalScores(
     );
 }
 
+
 async function getPostsByUris(
   uris
 ) {
@@ -523,9 +556,11 @@ async function getPostsByUris(
       )
     ];
 
-  const posts = [];
+  const posts =
+    [];
 
-  const BATCH_SIZE = 25;
+  const BATCH_SIZE =
+    25;
 
   for (
     let i = 0;
@@ -560,6 +595,7 @@ async function getPostsByUris(
   return posts;
 }
 
+
 function getQuotedUriFromRecord(
   record
 ) {
@@ -585,6 +621,7 @@ function getQuotedUriFromRecord(
 
   return null;
 }
+
 
 async function analyzeOutgoingInteractions(
   pds,
@@ -624,7 +661,8 @@ async function analyzeOutgoingInteractions(
 
   setProgress(30);
 
-  const targetUris = [];
+  const targetUris =
+    [];
 
   for (
     const record
@@ -806,13 +844,16 @@ async function analyzeOutgoingInteractions(
   setProgress(40);
 }
 
+
 async function getRecentOwnPosts(
   myDid,
   sinceDate
 ) {
-  const posts = [];
+  const posts =
+    [];
 
-  let cursor = null;
+  let cursor =
+    null;
 
   while (true) {
     const params = {
@@ -891,14 +932,18 @@ async function getRecentOwnPosts(
   return posts;
 }
 
+
 async function processInBatches(
   items,
   concurrency,
   callback,
   onProgress
 ) {
-  let nextIndex = 0;
-  let completed = 0;
+  let nextIndex =
+    0;
+
+  let completed =
+    0;
 
   async function worker() {
     while (true) {
@@ -933,7 +978,8 @@ async function processInBatches(
     }
   }
 
-  const workers = [];
+  const workers =
+    [];
 
   const workerCount =
     Math.min(
@@ -955,6 +1001,7 @@ async function processInBatches(
     workers
   );
 }
+
 
 async function analyzeIncomingInteractions(
   myDid,
@@ -1000,6 +1047,7 @@ async function analyzeIncomingInteractions(
   setProgress(95);
 }
 
+
 async function analyzePostInteractions(
   post,
   myDid,
@@ -1042,6 +1090,7 @@ async function analyzePostInteractions(
   ]);
 }
 
+
 async function analyzeLikes(
   post,
   myDid,
@@ -1049,7 +1098,8 @@ async function analyzeLikes(
   contacts,
   followedDids
 ) {
-  let cursor = null;
+  let cursor =
+    null;
 
   while (true) {
     const params = {
@@ -1078,7 +1128,9 @@ async function analyzeLikes(
           like.indexedAt
         );
 
-      if (date < sinceDate) {
+      if (
+        date < sinceDate
+      ) {
         return;
       }
 
@@ -1103,6 +1155,7 @@ async function analyzeLikes(
   }
 }
 
+
 async function analyzeReposts(
   post,
   myDid,
@@ -1110,7 +1163,8 @@ async function analyzeReposts(
   contacts,
   followedDids
 ) {
-  let cursor = null;
+  let cursor =
+    null;
 
   while (true) {
     const params = {
@@ -1155,6 +1209,7 @@ async function analyzeReposts(
   }
 }
 
+
 async function analyzeQuotes(
   post,
   myDid,
@@ -1162,7 +1217,8 @@ async function analyzeQuotes(
   contacts,
   followedDids
 ) {
-  let cursor = null;
+  let cursor =
+    null;
 
   while (true) {
     const params = {
@@ -1192,7 +1248,9 @@ async function analyzeQuotes(
           quotedPost.indexedAt
         );
 
-      if (date < sinceDate) {
+      if (
+        date < sinceDate
+      ) {
         return;
       }
 
@@ -1218,6 +1276,7 @@ async function analyzeQuotes(
       data.cursor;
   }
 }
+
 
 async function analyzeReplies(
   post,
@@ -1256,7 +1315,9 @@ async function analyzeReplies(
         replyPost.indexedAt
       );
 
-    if (date < sinceDate) {
+    if (
+      date < sinceDate
+    ) {
       continue;
     }
 
@@ -1279,13 +1340,32 @@ async function analyzeReplies(
   }
 }
 
+
+function createFallbackAvatar() {
+  const svg =
+    `
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="#17202b"/>
+      <circle cx="100" cy="75" r="38" fill="#71859b"/>
+      <path d="M35 180c8-42 33-62 65-62s57 20 65 62" fill="#71859b"/>
+    </svg>
+    `;
+
+  return (
+    "data:image/svg+xml;base64," +
+    btoa(svg)
+  );
+}
+
+
 async function fetchImageAsBase64(
   url
 ) {
+  const fallback =
+    createFallbackAvatar();
+
   if (!url) {
-    return (
-      "https://bsky.app/static/default-avatar.png"
-    );
+    return fallback;
   }
 
   try {
@@ -1298,9 +1378,7 @@ async function fetchImageAsBase64(
       );
 
     if (!response.ok) {
-      throw new Error(
-        "Image unavailable"
-      );
+      return fallback;
     }
 
     const blob =
@@ -1312,10 +1390,27 @@ async function fetchImageAsBase64(
           new FileReader();
 
         reader.onloadend =
-          () =>
+          () => {
+            if (
+              typeof reader.result ===
+              "string"
+            ) {
+              resolve(
+                reader.result
+              );
+            } else {
+              resolve(
+                fallback
+              );
+            }
+          };
+
+        reader.onerror =
+          () => {
             resolve(
-              reader.result
+              fallback
             );
+          };
 
         reader.readAsDataURL(
           blob
@@ -1324,11 +1419,10 @@ async function fetchImageAsBase64(
     );
 
   } catch (_) {
-    return (
-      "https://bsky.app/static/default-avatar.png"
-    );
+    return fallback;
   }
 }
+
 
 function getBlueskyProfileUrl(
   handle
@@ -1344,6 +1438,7 @@ function getBlueskyProfileUrl(
     )
   );
 }
+
 
 function createThemePicker() {
   const downloadBtn =
@@ -1479,11 +1574,17 @@ function createThemePicker() {
   );
 }
 
+
 async function generateCircle() {
-  const handleInput =
+  const inputElement =
     document.getElementById(
       "handleInput"
-    ).value.trim();
+    );
+
+  const handleInput =
+    inputElement
+      ? inputElement.value.trim()
+      : "";
 
   const status =
     document.getElementById(
@@ -1511,8 +1612,22 @@ async function generateCircle() {
     );
 
   if (!handleInput) {
-    status.innerText =
-      "Enter a Bluesky handle.";
+    if (status) {
+      status.innerText =
+        "Enter a Bluesky handle.";
+    }
+
+    return;
+  }
+
+  if (
+    !poster ||
+    !tilesContainer ||
+    !generateBtn
+  ) {
+    console.error(
+      "Required page elements are missing."
+    );
 
     return;
   }
@@ -1523,14 +1638,25 @@ async function generateCircle() {
   generateBtn.innerText =
     "0%";
 
-  downloadBtn.style.display =
-    "none";
+  if (downloadBtn) {
+    downloadBtn.style.display =
+      "none";
+  }
 
   poster.style.display =
     "none";
 
   tilesContainer.innerHTML =
     "";
+
+  const oldPicker =
+    document.getElementById(
+      "themePicker"
+    );
+
+  if (oldPicker) {
+    oldPicker.remove();
+  }
 
   try {
     setProgress(2);
@@ -1567,7 +1693,8 @@ async function generateCircle() {
     const sinceDate =
       getSinceDate();
 
-    const contacts = {};
+    const contacts =
+      {};
 
     await analyzeOutgoingInteractions(
       pds,
@@ -1596,8 +1723,10 @@ async function generateCircle() {
     ) {
       setProgress(100);
 
-      status.innerText =
-        "No interactions found.";
+      if (status) {
+        status.innerText =
+          "No interactions found.";
+      }
 
       return;
     }
@@ -1616,7 +1745,39 @@ async function generateCircle() {
         )
       );
 
-    setProgress(99);
+    setProgress(98);
+
+    poster.style.display =
+      "block";
+
+    tilesContainer.style.display =
+      "block";
+
+    await new Promise(
+      resolve =>
+        requestAnimationFrame(
+          () => resolve()
+        )
+    );
+
+    await new Promise(
+      resolve =>
+        requestAnimationFrame(
+          () => resolve()
+        )
+    );
+
+    const rect =
+      tilesContainer.getBoundingClientRect();
+
+    if (
+      !rect.width ||
+      !rect.height
+    ) {
+      throw new Error(
+        "Unable to determine the mosaic size."
+      );
+    }
 
     await renderMosaic(
       myProfile,
@@ -1625,11 +1786,10 @@ async function generateCircle() {
 
     setProgress(100);
 
-    poster.style.display =
-      "block";
-
-    downloadBtn.style.display =
-      "inline-block";
+    if (downloadBtn) {
+      downloadBtn.style.display =
+        "inline-block";
+    }
 
     createThemePicker();
 
@@ -1649,9 +1809,14 @@ async function generateCircle() {
       error
     );
 
-    status.innerText =
-      "Error: " +
-      error.message;
+    if (status) {
+      status.innerText =
+        "Error: " +
+        error.message;
+    }
+
+    poster.style.display =
+      "none";
 
   } finally {
     generateBtn.disabled =
@@ -1662,6 +1827,7 @@ async function generateCircle() {
   }
 }
 
+
 async function renderMosaic(
   myProfile,
   contacts
@@ -1671,7 +1837,26 @@ async function renderMosaic(
       "tilesContainer"
     );
 
-  const gridDim = 10;
+  if (!container) {
+    throw new Error(
+      "Mosaic container not found."
+    );
+  }
+
+  const rect =
+    container.getBoundingClientRect();
+
+  const containerWidth =
+    rect.width;
+
+  if (!containerWidth) {
+    throw new Error(
+      "Mosaic container has no width."
+    );
+  }
+
+  const gridDim =
+    10;
 
   const centerPos = {
     r: 3,
@@ -1680,43 +1865,155 @@ async function renderMosaic(
   };
 
   const tier1Pos = [
-    { r: 0, c: 0, size: 3 },
-    { r: 0, c: 7, size: 3 },
-    { r: 7, c: 0, size: 3 },
-    { r: 7, c: 7, size: 3 }
+    {
+      r: 0,
+      c: 0,
+      size: 3
+    },
+    {
+      r: 0,
+      c: 7,
+      size: 3
+    },
+    {
+      r: 7,
+      c: 0,
+      size: 3
+    },
+    {
+      r: 7,
+      c: 7,
+      size: 3
+    }
   ];
 
   const tier2Pos = [
-    { r: 1, c: 3, size: 2 },
-    { r: 1, c: 5, size: 2 },
-    { r: 3, c: 1, size: 2 },
-    { r: 5, c: 1, size: 2 },
-    { r: 3, c: 7, size: 2 },
-    { r: 5, c: 7, size: 2 },
-    { r: 7, c: 3, size: 2 },
-    { r: 7, c: 5, size: 2 }
+    {
+      r: 1,
+      c: 3,
+      size: 2
+    },
+    {
+      r: 1,
+      c: 5,
+      size: 2
+    },
+    {
+      r: 3,
+      c: 1,
+      size: 2
+    },
+    {
+      r: 5,
+      c: 1,
+      size: 2
+    },
+    {
+      r: 3,
+      c: 7,
+      size: 2
+    },
+    {
+      r: 5,
+      c: 7,
+      size: 2
+    },
+    {
+      r: 7,
+      c: 3,
+      size: 2
+    },
+    {
+      r: 7,
+      c: 5,
+      size: 2
+    }
   ];
 
   const tier3Pos = [
-    { r: 0, c: 3, size: 1 },
-    { r: 0, c: 4, size: 1 },
-    { r: 0, c: 5, size: 1 },
-    { r: 0, c: 6, size: 1 },
+    {
+      r: 0,
+      c: 3,
+      size: 1
+    },
+    {
+      r: 0,
+      c: 4,
+      size: 1
+    },
+    {
+      r: 0,
+      c: 5,
+      size: 1
+    },
+    {
+      r: 0,
+      c: 6,
+      size: 1
+    },
 
-    { r: 3, c: 0, size: 1 },
-    { r: 4, c: 0, size: 1 },
-    { r: 5, c: 0, size: 1 },
-    { r: 6, c: 0, size: 1 },
+    {
+      r: 3,
+      c: 0,
+      size: 1
+    },
+    {
+      r: 4,
+      c: 0,
+      size: 1
+    },
+    {
+      r: 5,
+      c: 0,
+      size: 1
+    },
+    {
+      r: 6,
+      c: 0,
+      size: 1
+    },
 
-    { r: 3, c: 9, size: 1 },
-    { r: 4, c: 9, size: 1 },
-    { r: 5, c: 9, size: 1 },
-    { r: 6, c: 9, size: 1 },
+    {
+      r: 3,
+      c: 9,
+      size: 1
+    },
+    {
+      r: 4,
+      c: 9,
+      size: 1
+    },
+    {
+      r: 5,
+      c: 9,
+      size: 1
+    },
+    {
+      r: 6,
+      c: 9,
+      size: 1
+    },
 
-    { r: 9, c: 3, size: 1 },
-    { r: 9, c: 4, size: 1 },
-    { r: 9, c: 5, size: 1 },
-    { r: 9, c: 6, size: 1 }
+    {
+      r: 9,
+      c: 3,
+      size: 1
+    },
+    {
+      r: 9,
+      c: 4,
+      size: 1
+    },
+    {
+      r: 9,
+      c: 5,
+      size: 1
+    },
+    {
+      r: 9,
+      c: 6,
+      size: 1
+    }
   ];
 
   const mainAvatar =
@@ -1735,7 +2032,8 @@ async function renderMosaic(
     null
   );
 
-  let contactIdx = 0;
+  let contactIdx =
+    0;
 
   for (
     const pos
@@ -1828,6 +2126,7 @@ async function renderMosaic(
   }
 }
 
+
 function createTile(
   container,
   imgSrc,
@@ -1838,23 +2137,39 @@ function createTile(
   gridDim,
   contact
 ) {
+  const rect =
+    container.getBoundingClientRect();
+
+  const containerWidth =
+    rect.width;
+
+  if (!containerWidth) {
+    return;
+  }
+
   const cellSize =
-    container.clientWidth / gridDim;
+    containerWidth /
+    gridDim;
 
   const gap =
-    15 * (container.clientWidth / 700);
+    Math.min(
+      15,
+      15 *
+      (
+        containerWidth /
+        700
+      )
+    );
 
   const tile =
     document.createElement(
       "div"
     );
-  
+
   tile.className =
-    `tile ${
-      isMain
-        ? "main-tile"
-        : ""
-    }`;
+    isMain
+      ? "tile main-tile"
+      : "tile";
 
   const x =
     c * cellSize;
@@ -1881,10 +2196,16 @@ function createTile(
     `${x + gap / 2}px`;
 
   tile.style.width =
-    `${width - gap}px`;
+    `${Math.max(
+      0,
+      width - gap
+    )}px`;
 
   tile.style.height =
-    `${height - gap}px`;
+    `${Math.max(
+      0,
+      height - gap
+    )}px`;
 
   tile.style.border =
     "none";
@@ -1906,7 +2227,8 @@ function createTile(
     );
 
   img.src =
-    imgSrc;
+    imgSrc ||
+    createFallbackAvatar();
 
   img.alt =
     "";
@@ -1977,6 +2299,7 @@ function createTile(
   );
 }
 
+
 function downloadImage() {
   const tiles =
     document.getElementById(
@@ -1992,9 +2315,14 @@ function downloadImage() {
       selectedTheme
     ];
 
-  const finalSize = 900;
-  const mosaicSize = 700;
-  const scale = 2;
+  const finalSize =
+    900;
+
+  const mosaicSize =
+    700;
+
+  const scale =
+    2;
 
   const originalInlineBackground =
     tiles.style.background;
@@ -2022,10 +2350,12 @@ function downloadImage() {
         );
 
       finalCanvas.width =
-        finalSize * scale;
+        finalSize *
+        scale;
 
       finalCanvas.height =
-        finalSize * scale;
+        finalSize *
+        scale;
 
       const ctx =
         finalCanvas.getContext(
@@ -2149,9 +2479,12 @@ function downloadImage() {
       );
 
       const mosaicX =
-        (finalSize - mosaicSize) / 2;
+        (finalSize -
+          mosaicSize) /
+        2;
 
-      const mosaicY = 100;
+      const mosaicY =
+        100;
 
       ctx.save();
 
@@ -2212,6 +2545,7 @@ function downloadImage() {
     });
 }
 
+
 function hexToRgba(
   hex,
   alpha
@@ -2224,19 +2558,28 @@ function hexToRgba(
 
   const r =
     parseInt(
-      value.substring(0, 2),
+      value.substring(
+        0,
+        2
+      ),
       16
     );
 
   const g =
     parseInt(
-      value.substring(2, 4),
+      value.substring(
+        2,
+        4
+      ),
       16
     );
 
   const b =
     parseInt(
-      value.substring(4, 6),
+      value.substring(
+        4,
+        6
+      ),
       16
     );
 
@@ -2244,6 +2587,7 @@ function hexToRgba(
     `rgba(${r}, ${g}, ${b}, ${alpha})`
   );
 }
+
 
 document.addEventListener(
   "DOMContentLoaded",

@@ -52,6 +52,31 @@ const CARD_THEMES = {
     muted: "#ffc1c9",
     swatch: "#ef4444"
   },
+  
+  purple: {
+  name: "Purple",
+
+  pageBg: "#160b1f",
+  pageGlow1: "#a855f7",
+  pageGlow2: "#d8b4fe",
+
+  background: "#1b0d29",
+  glow1: "#a855f7",
+  glow2: "#d8b4fe",
+
+  text: "#ffffff",
+  muted: "#e9d5ff",
+
+  accent: "#a855f7",
+  accentLight: "#d8b4fe",
+
+  glassBg: "rgba(255,255,255,0.075)",
+  glassBorder: "rgba(255,255,255,0.14)",
+
+  inputBg: "rgba(18,5,30,0.55)",
+
+  swatch: "#a855f7"
+},
 
   white: {
     name: "White",

@@ -1839,15 +1839,16 @@ function createTile(
   contact
 ) {
   const cellSize =
-    700 / gridDim;
+    container.clientWidth / gridDim;
 
-  const gap = 15;
+  const gap =
+    15 * (container.clientWidth / 700);
 
   const tile =
     document.createElement(
       "div"
     );
-
+  
   tile.className =
     `tile ${
       isMain

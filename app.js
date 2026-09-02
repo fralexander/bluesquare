@@ -2,7 +2,7 @@ const API = "https://public.api.bsky.app/xrpc";
 
 const DAYS_TO_ANALYZE = 7;
 const MAX_CONTACTS = 28;
-const MIN_INTERACTIONS = 2;
+const MIN_INTERACTIONS = 1;
 const POST_CONCURRENCY = 8;
 
 const SCORE = {

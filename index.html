@@ -697,13 +697,14 @@
 
       <div id="tilesContainer"></div>
 
-
-      <button
-        id="downloadBtn"
-        onclick="downloadImage()"
-      >
-        Download
-      </button>
+      <div id="buttonsContainer" style="display: flex; gap: 12px; justify-content: center; align-items: center;">
+  <button id="downloadBtn" type="button" onclick="downloadImage()" style="display: none;">
+    Download
+  </button>
+  <button id="copyHandlesBtn" type="button" style="display: none;">
+    Copy
+  </button>
+</div>
 
     </section>
 

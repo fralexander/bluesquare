@@ -2,7 +2,7 @@ const API = "https://public.api.bsky.app/xrpc";
 
 const DAYS_TO_ANALYZE = 7;
 const MAX_CONTACTS = 28;
-const MIN_INTERACTIONS = 1;
+const MIN_INTERACTIONS = 2;
 const POST_CONCURRENCY = 8;
 
 const SCORE = {
@@ -21,6 +21,16 @@ const CARD_THEMES = {
     text: "#ffffff",
     muted: "#fff4b8",
     swatch: "#facc15"
+  },
+  
+  pink: {
+    name: "Pink",
+    background: "#1f1019",
+    glow1: "#ff66c4",
+    glow2: "#ff3399",
+    text: "#ffffff",
+    muted: "#f4a6d7",
+    swatch: "linear-gradient(135deg, #ff66c4 0%, #ff3399 100%)"
   },
 
   green: {
@@ -118,6 +128,7 @@ function setProgress(percent) {
   }
 }
 
+let currentContacts = [];
 
 async function apiGet(
   endpoint,
@@ -1466,136 +1477,62 @@ function getBlueskyProfileUrl(
 
 
 function createThemePicker() {
-  const downloadBtn =
-    document.getElementById(
-      "downloadBtn"
-    );
+  const buttonsContainer = document.getElementById("buttonsContainer");
 
-  if (!downloadBtn) {
+  if (!buttonsContainer) {
     return;
   }
 
-  const oldPicker =
-    document.getElementById(
-      "themePicker"
-    );
-
+  const oldPicker = document.getElementById("themePicker");
   if (oldPicker) {
     oldPicker.remove();
   }
 
-  const wrapper =
-    document.createElement(
-      "div"
-    );
+  const wrapper = document.createElement("div");
+  wrapper.id = "themePicker";
+  wrapper.style.display = "none";
+  wrapper.style.marginTop = "14px";
+  wrapper.style.justifyContent = "center";
+  wrapper.style.alignItems = "center";
+  wrapper.style.gap = "12px";
 
-  wrapper.id =
-    "themePicker";
-
-  wrapper.style.display =
-    "none";
-
-  wrapper.style.marginTop =
-    "14px";
-
-  wrapper.style.justifyContent =
-    "center";
-
-  wrapper.style.alignItems =
-    "center";
-
-  wrapper.style.gap =
-    "12px";
-
-  for (
-    const [key, theme]
-    of Object.entries(
-      CARD_THEMES
-    )
-  ) {
-    const button =
-      document.createElement(
-        "button"
-      );
-
-    button.type =
-      "button";
-
-    button.title =
-      theme.name;
-
-    button.setAttribute(
-      "aria-label",
-      theme.name
-    );
-
-    button.style.width =
-      "30px";
-
-    button.style.height =
-      "30px";
-
-    button.style.minWidth =
-      "30px";
-
-    button.style.padding =
-      "0";
-
-    button.style.margin =
-      "0";
-
-    button.style.borderRadius =
-      "50%";
-
-    button.style.cursor =
-      "pointer";
-
-    button.style.background =
-      theme.swatch;
-
+  for (const [key, theme] of Object.entries(CARD_THEMES)) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.title = theme.name;
+    button.setAttribute("aria-label", theme.name);
+    button.style.width = "30px";
+    button.style.height = "30px";
+    button.style.minWidth = "30px";
+    button.style.padding = "0";
+    button.style.margin = "0";
+    button.style.borderRadius = "50%";
+    button.style.cursor = "pointer";
+    button.style.background = theme.swatch;
     button.style.boxShadow =
       key === selectedTheme
-        ? (
-            "0 0 0 3px #ffffff, " +
-            "0 0 0 5px rgba(17,133,254,0.65)"
-          )
-        : (
-            "0 1px 5px rgba(0,0,0,0.25)"
-          );
-
+        ? "0 0 0 3px #ffffff, 0 0 0 5px rgba(17,133,254,0.65)"
+        : "0 1px 5px rgba(0,0,0,0.25)";
     button.style.border =
       key === "white"
         ? "1px solid #cbd5e1"
         : "1px solid rgba(255,255,255,0.25)";
 
-    button.addEventListener(
-      "click",
-      () => {
-        selectedTheme =
-          key;
-
-        createThemePicker();
-
-        const picker =
-          document.getElementById(
-            "themePicker"
-          );
-
-        if (picker) {
-          picker.style.display =
-            "flex";
-        }
+    button.addEventListener("click", () => {
+      selectedTheme = key;
+      createThemePicker();
+      const picker = document.getElementById("themePicker");
+      if (picker) {
+        picker.style.display = "flex";
       }
-    );
+    });
 
-    wrapper.appendChild(
-      button
-    );
+    wrapper.appendChild(button);
   }
 
-  downloadBtn.parentNode.insertBefore(
+  buttonsContainer.parentNode.insertBefore(
     wrapper,
-    downloadBtn.nextSibling
+    buttonsContainer.nextSibling
   );
 }
 
@@ -1664,8 +1601,12 @@ async function generateCircle() {
     "0%";
 
   if (downloadBtn) {
-    downloadBtn.style.display =
-      "none";
+    downloadBtn.style.display = "none";
+  }
+
+  const copyBtn = document.getElementById("copyHandlesBtn");
+  if (copyBtn) {
+    copyBtn.style.display = "none";
   }
 
   poster.style.display =
@@ -1738,10 +1679,9 @@ async function generateCircle() {
 
     setProgress(96);
 
-    const sortedContacts =
-      calculateFinalScores(
-        contacts
-      );
+const sortedContacts = calculateFinalScores(contacts);
+
+  currentContacts = sortedContacts.slice(0, 28);
 
     if (
       sortedContacts.length === 0
@@ -1812,9 +1752,12 @@ async function generateCircle() {
     setProgress(100);
 
     if (downloadBtn) {
-      downloadBtn.style.display =
-        "inline-block";
-    }
+    downloadBtn.style.display = "inline-block";
+  }
+
+  if (copyBtn) {
+    copyBtn.style.display = "inline-block";
+  }
 
     createThemePicker();
 
@@ -2326,247 +2269,163 @@ function createTile(
 
 
 function downloadImage() {
-  const tiles =
-    document.getElementById(
-      "tilesContainer"
-    );
+  const tiles = document.getElementById("tilesContainer");
 
   if (!tiles) {
     return;
   }
 
-  const theme =
-    CARD_THEMES[
-      selectedTheme
-    ];
+  const theme = CARD_THEMES[selectedTheme];
+  const finalSize = 900;
+  const mosaicSize = 700;
+  const scale = 2;
 
-  const finalSize =
-    900;
+  const originalInlineBackground = tiles.style.background;
+  tiles.style.background = "transparent";
 
-  const mosaicSize =
-    700;
-
-  const scale =
-    2;
-
-  const originalInlineBackground =
-    tiles.style.background;
-
-  tiles.style.background =
-    "transparent";
-
-  html2canvas(
-    tiles,
-    {
-      scale,
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: null,
-      logging: false
-    }
-  )
+  html2canvas(tiles, {
+    scale,
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    logging: false
+  })
     .then(canvas => {
-      tiles.style.background =
-        originalInlineBackground;
+      tiles.style.background = originalInlineBackground;
 
-      const finalCanvas =
-        document.createElement(
-          "canvas"
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = finalSize * scale;
+      finalCanvas.height = finalSize * scale;
+
+      const ctx = finalCanvas.getContext("2d");
+
+      ctx.fillStyle = theme.background;
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+      const gradient1 = ctx.createRadialGradient(
+        130 * scale,
+        120 * scale,
+        0,
+        130 * scale,
+        120 * scale,
+        500 * scale
+      );
+      gradient1.addColorStop(0, hexToRgba(theme.glow1, 0.45));
+      gradient1.addColorStop(0.4, hexToRgba(theme.glow1, 0.16));
+      gradient1.addColorStop(1, hexToRgba(theme.glow1, 0));
+
+      ctx.fillStyle = gradient1;
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+      const gradient2 = ctx.createRadialGradient(
+        780 * scale,
+        800 * scale,
+        0,
+        780 * scale,
+        800 * scale,
+        500 * scale
+      );
+      gradient2.addColorStop(0, hexToRgba(theme.glow2, 0.30));
+      gradient2.addColorStop(0.45, hexToRgba(theme.glow2, 0.10));
+      gradient2.addColorStop(1, hexToRgba(theme.glow2, 0));
+
+      ctx.fillStyle = gradient2;
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = theme.text;
+      ctx.font = "700 56px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+
+      const renderRestAndDownload = () => {
+        const mosaicX = (finalSize - mosaicSize) / 2;
+        const mosaicY = 100;
+
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.28)";
+        ctx.shadowBlur = 22 * scale;
+        ctx.shadowOffsetY = 6 * scale;
+
+        ctx.drawImage(
+          canvas,
+          mosaicX * scale,
+          mosaicY * scale,
+          mosaicSize * scale,
+          mosaicSize * scale
+        );
+        ctx.restore();
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = theme.muted;
+        ctx.font = "600 30px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+        ctx.fillText(
+          "fralexander.github.io/bluesquare",
+          finalCanvas.width / 2,
+          850 * scale
         );
 
-      finalCanvas.width =
-        finalSize *
-        scale;
+        finalCanvas.toBlob(blob => {
+          if (!blob) {
+            console.error("Erreur lors de la création du Blob.");
+            return;
+          }
 
-      finalCanvas.height =
-        finalSize *
-        scale;
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.download = "bluesquare.png";
+          link.href = blobUrl;
 
-      const ctx =
-        finalCanvas.getContext(
-          "2d"
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+        }, "image/png");
+      };
+
+      const logoImg = new Image();
+      logoImg.src = "logo.png";
+
+      logoImg.onload = () => {
+        const logoSize = 36 * scale;
+        const logoSpacing = 16 * scale;
+        const textWidth = ctx.measureText("BlueSquare").width;
+        const totalWidth = logoSize + logoSpacing + textWidth;
+
+        const startX = (finalCanvas.width - totalWidth) / 2;
+        const titleY = 58 * scale;
+
+        ctx.drawImage(
+          logoImg,
+          startX,
+          titleY - (logoSize / 2),
+          logoSize,
+          logoSize
         );
 
-      ctx.fillStyle =
-        theme.background;
-
-      ctx.fillRect(
-        0,
-        0,
-        finalCanvas.width,
-        finalCanvas.height
-      );
-
-      const gradient1 =
-        ctx.createRadialGradient(
-          130 * scale,
-          120 * scale,
-          0,
-          130 * scale,
-          120 * scale,
-          500 * scale
+        ctx.textAlign = "left";
+        ctx.fillText(
+          "BlueSquare",
+          startX + logoSize + logoSpacing,
+          titleY
         );
 
-      gradient1.addColorStop(
-        0,
-        hexToRgba(
-          theme.glow1,
-          0.45
-        )
-      );
+        renderRestAndDownload();
+      };
 
-      gradient1.addColorStop(
-        0.4,
-        hexToRgba(
-          theme.glow1,
-          0.16
-        )
-      );
-
-      gradient1.addColorStop(
-        1,
-        hexToRgba(
-          theme.glow1,
-          0
-        )
-      );
-
-      ctx.fillStyle =
-        gradient1;
-
-      ctx.fillRect(
-        0,
-        0,
-        finalCanvas.width,
-        finalCanvas.height
-      );
-
-      const gradient2 =
-        ctx.createRadialGradient(
-          780 * scale,
-          800 * scale,
-          0,
-          780 * scale,
-          800 * scale,
-          500 * scale
+      logoImg.onerror = () => {
+        ctx.textAlign = "center";
+        ctx.fillText(
+          "BlueSquare",
+          finalCanvas.width / 2,
+          58 * scale
         );
 
-      gradient2.addColorStop(
-        0,
-        hexToRgba(
-          theme.glow2,
-          0.30
-        )
-      );
-
-      gradient2.addColorStop(
-        0.45,
-        hexToRgba(
-          theme.glow2,
-          0.10
-        )
-      );
-
-      gradient2.addColorStop(
-        1,
-        hexToRgba(
-          theme.glow2,
-          0
-        )
-      );
-
-      ctx.fillStyle =
-        gradient2;
-
-      ctx.fillRect(
-        0,
-        0,
-        finalCanvas.width,
-        finalCanvas.height
-      );
-
-      ctx.textAlign =
-        "center";
-
-      ctx.textBaseline =
-        "middle";
-
-      ctx.fillStyle =
-        theme.text;
-
-      ctx.font =
-        "700 56px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-
-      ctx.fillText(
-        "BlueSquare",
-        finalCanvas.width / 2,
-        58 * scale
-      );
-
-      const mosaicX =
-        (finalSize -
-          mosaicSize) /
-        2;
-
-      const mosaicY =
-        100;
-
-      ctx.save();
-
-      ctx.shadowColor =
-        "rgba(0,0,0,0.28)";
-
-      ctx.shadowBlur =
-        22 * scale;
-
-      ctx.shadowOffsetY =
-        6 * scale;
-
-      ctx.drawImage(
-        canvas,
-        mosaicX * scale,
-        mosaicY * scale,
-        mosaicSize * scale,
-        mosaicSize * scale
-      );
-
-      ctx.restore();
-
-      ctx.fillStyle =
-        theme.muted;
-
-      ctx.font =
-        "600 30px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-
-      ctx.fillText(
-        "fralexander.github.io/bluesquare",
-        finalCanvas.width / 2,
-        850 * scale
-      );
-
-      const link =
-        document.createElement(
-          "a"
-        );
-
-      link.download =
-        "bluesquare.png";
-
-      link.href =
-        finalCanvas.toDataURL(
-          "image/png"
-        );
-
-      link.click();
+        renderRestAndDownload();
+      };
     })
     .catch(error => {
-      tiles.style.background =
-        originalInlineBackground;
-
-      console.error(
-        "Unable to generate image:",
-        error
-      );
+      tiles.style.background = originalInlineBackground;
+      console.error("Unable to generate image:", error);
     });
 }
 
@@ -2613,10 +2472,36 @@ function hexToRgba(
   );
 }
 
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-    createThemePicker();
+async function copyHandlesToClipboard() {
+  if (!currentContacts || currentContacts.length === 0) {
+    return;
   }
-);
+
+  const handlesList = currentContacts
+    .map(contact => `@${contact.handle}`)
+    .join("\n");
+
+  try {
+    await navigator.clipboard.writeText(handlesList);
+
+    const copyBtn = document.getElementById("copyHandlesBtn");
+    if (copyBtn) {
+      const originalText = copyBtn.innerText;
+      copyBtn.innerText = "Copié !";
+      setTimeout(() => {
+        copyBtn.innerText = originalText;
+      }, 2000);
+    }
+  } catch (error) {
+    console.error("Erreur lors de la copie :", error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  createThemePicker();
+
+  const copyBtn = document.getElementById("copyHandlesBtn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", copyHandlesToClipboard);
+  }
+});

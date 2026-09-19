@@ -105,6 +105,43 @@
       z-index: -1;
     }
 
+.support-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin: 20px 0 !important;
+}
+
+.support-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important; /* Force le texte en blanc */
+  text-decoration: none !important; /* Enlève le soulignement bleu */
+  
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 8px !important; /* Bords légèrement arrondis comme le champ texte */
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease-in-out !important;
+  cursor: pointer !important;
+}
+
+.support-btn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25) !important;
+}
 
     .app {
       width: 100%;
@@ -620,7 +657,7 @@
         width: 48px;
         height: 48px;
       }
-
+	  
     }
 
   </style>
@@ -683,6 +720,16 @@
 
       </div>
 
+<div class="support-wrapper">
+        <a
+          href="https://throne.com/fralexander"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="support-btn"
+        >
+          🎁 Support me on Throne
+        </a>
+      </div>
 
       <p class="privacy-notice">
         <strong>Privacy notice</strong><br>

@@ -12,94 +12,27 @@ const SCORE = {
   quote: 5
 };
 
+
+const spiderwebImage = new Image();
+spiderwebImage.src = "./spiderweb.png";
+
+
 const CARD_THEMES = {
-  yellow: {
-    name: "Yellow",
-    background: "#17200b",
-    glow1: "#facc15",
-    glow2: "#fde68a",
-    text: "#ffffff",
-    muted: "#fff4b8",
-    swatch: "#facc15"
-  },
-  
-  pink: {
-    name: "Pink",
-    background: "#1f1019",
-    glow1: "#ff66c4",
-    glow2: "#ff3399",
-    text: "#ffffff",
-    muted: "#f4a6d7",
-    swatch: "linear-gradient(135deg, #ff66c4 0%, #ff3399 100%)"
-  },
-
-  green: {
-    name: "Green",
-    background: "#071c13",
-    glow1: "#22c55e",
-    glow2: "#86efac",
-    text: "#ffffff",
-    muted: "#b8f5ca",
-    swatch: "#22c55e"
-  },
-
-  blue: {
-    name: "Blue",
-    background: "#06182c",
-    glow1: "#1185fe",
-    glow2: "#67d8ff",
-    text: "#ffffff",
-    muted: "#b5ddff",
-    swatch: "#1185fe"
-  },
-
-  red: {
-    name: "Red",
-    background: "#240d12",
-    glow1: "#ef4444",
-    glow2: "#fb7185",
-    text: "#ffffff",
-    muted: "#ffc1c9",
-    swatch: "#ef4444"
-  },
-  
-  purple: {
-  name: "Purple",
-
-  pageBg: "#160b1f",
-  pageGlow1: "#a855f7",
-  pageGlow2: "#d8b4fe",
-
-  background: "#1b0d29",
-  glow1: "#a855f7",
-  glow2: "#d8b4fe",
-
-  text: "#ffffff",
-  muted: "#e9d5ff",
-
-  accent: "#a855f7",
-  accentLight: "#d8b4fe",
-
-  glassBg: "rgba(255,255,255,0.075)",
-  glassBorder: "rgba(255,255,255,0.14)",
-
-  inputBg: "rgba(18,5,30,0.55)",
-
-  swatch: "#a855f7"
-},
-
-  white: {
-    name: "White",
-    background: "#17202b",
-    glow1: "#ffffff",
-    glow2: "#dbeafe",
-    text: "#ffffff",
-    muted: "#dbe7f2",
-    swatch: "#ffffff"
+  pumpkin: {
+    name: "Pumpkin Ritual",
+    style: "vintage",
+    background: "#100804",
+    glow1: "#FF4D00",
+    glow2: "#FF9D00",
+    text: "#FFF0D5",
+    muted: "#D6A77A",
+    frame: "#FF6A00",
+    swatch: "linear-gradient(135deg, #FF4D00 0%, #FF9D00 45%, #100804 100%)"
   }
 };
 
-let selectedTheme = "blue";
+
+let selectedTheme = "pumpkin";
 
 
 function setProgress(percent) {
@@ -2303,31 +2236,31 @@ function downloadImage() {
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
       const gradient1 = ctx.createRadialGradient(
-        130 * scale,
+        760 * scale,
         120 * scale,
         0,
-        130 * scale,
+        760 * scale,
         120 * scale,
         500 * scale
       );
-      gradient1.addColorStop(0, hexToRgba(theme.glow1, 0.45));
-      gradient1.addColorStop(0.4, hexToRgba(theme.glow1, 0.16));
-      gradient1.addColorStop(1, hexToRgba(theme.glow1, 0));
+      gradient1.addColorStop(0, "rgba(255, 77, 0, 0.95)");
+gradient1.addColorStop(0.35, "rgba(255, 77, 0, 0.45)");
+gradient1.addColorStop(1, "rgba(255, 77, 0, 0)");
 
       ctx.fillStyle = gradient1;
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
       const gradient2 = ctx.createRadialGradient(
-        780 * scale,
-        800 * scale,
+        100 * scale,
+        820 * scale,
         0,
-        780 * scale,
-        800 * scale,
+        100 * scale,
+        820 * scale,
         500 * scale
       );
-      gradient2.addColorStop(0, hexToRgba(theme.glow2, 0.30));
-      gradient2.addColorStop(0.45, hexToRgba(theme.glow2, 0.10));
-      gradient2.addColorStop(1, hexToRgba(theme.glow2, 0));
+      gradient2.addColorStop(0, "rgba(255, 157, 0, 0.75)");
+gradient2.addColorStop(0.4, "rgba(255, 100, 0, 0.3)");
+gradient2.addColorStop(1, "rgba(255, 100, 0, 0)");
 
       ctx.fillStyle = gradient2;
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
@@ -2339,6 +2272,21 @@ function downloadImage() {
       const renderRestAndDownload = () => {
         const mosaicX = (finalSize - mosaicSize) / 2;
         const mosaicY = 100;
+
+
+
+if (spiderwebImage.complete && spiderwebImage.naturalWidth > 0) {
+  const webSize = 440 * scale;
+
+  ctx.drawImage(
+    spiderwebImage,
+    0,
+    0,
+    webSize,
+    webSize
+  );
+}
+
 
         ctx.save();
         ctx.shadowColor = "rgba(0,0,0,0.28)";
@@ -2355,13 +2303,14 @@ function downloadImage() {
         ctx.restore();
 
         ctx.textAlign = "center";
-        ctx.fillStyle = theme.muted;
+		ctx.fillStyle = "#FFF0D5";
         ctx.font = "600 30px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
         ctx.fillText(
           "fralexander.github.io/bluesquare",
           finalCanvas.width / 2,
           850 * scale
         );
+		
 
         finalCanvas.toBlob(blob => {
           if (!blob) {
@@ -2383,7 +2332,7 @@ function downloadImage() {
       };
 
       const logoImg = new Image();
-      logoImg.src = "logo.png";
+      logoImg.src = "logo2.png";
 
       logoImg.onload = () => {
         const logoSize = 36 * scale;

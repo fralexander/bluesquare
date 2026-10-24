@@ -2375,10 +2375,10 @@ if (spiderwebImage.complete && spiderwebImage.naturalWidth > 0) {
 
 if (ghostImage.complete && ghostImage.naturalWidth > 0) {
   const ghostSize = 330 * scale;
-  const offset = ghostSize * 0.25;
+  const offset = ghostSize * 0.33;
 
   ctx.save();
-  ctx.globalAlpha = 0.33;
+  ctx.globalAlpha = 0.25;
 
   ctx.drawImage(
     ghostImage,

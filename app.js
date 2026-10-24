@@ -16,6 +16,9 @@ const SCORE = {
 const spiderwebImage = new Image();
 spiderwebImage.src = "./spiderweb.png";
 
+const ghostImage = new Image();
+ghostImage.src = "./ghost.png";
+
 
 const CARD_THEMES = {
   pumpkin: {
@@ -28,8 +31,21 @@ const CARD_THEMES = {
     muted: "#D6A77A",
     frame: "#FF6A00",
     swatch: "linear-gradient(135deg, #FF4D00 0%, #FF9D00 45%, #100804 100%)"
+  },
+
+  violet: {
+    name: "Violet Ritual",
+    style: "vintage",
+    background: "#0B0614",
+    glow1: "#8A2BE2",
+    glow2: "#D946EF",
+    text: "#F5E9FF",
+    muted: "#C4A7E8",
+    frame: "#A855F7",
+    swatch: "linear-gradient(135deg, #6D28D9 0%, #D946EF 45%, #0B0614 100%)"
   }
 };
+
 
 
 let selectedTheme = "pumpkin";
@@ -2201,6 +2217,39 @@ function createTile(
 }
 
 
+
+function drawGlitchImage(ctx, img, x, y, width, height, intensity = 3) {
+  // Image principale
+  ctx.drawImage(img, x, y, width, height);
+
+  ctx.save();
+
+  // Décalage subtil du canal rouge
+  ctx.globalCompositeOperation = "screen";
+  ctx.globalAlpha = 0.22;
+  ctx.drawImage(
+    img,
+    x - intensity,
+    y,
+    width,
+    height
+  );
+
+  // Décalage subtil du canal cyan
+  ctx.globalAlpha = 0.18;
+  ctx.drawImage(
+    img,
+    x + intensity,
+    y,
+    width,
+    height
+  );
+
+  ctx.restore();
+}
+
+
+
 function downloadImage() {
   const tiles = document.getElementById("tilesContainer");
 
@@ -2243,9 +2292,20 @@ function downloadImage() {
         120 * scale,
         500 * scale
       );
-      gradient1.addColorStop(0, "rgba(255, 77, 0, 0.95)");
-gradient1.addColorStop(0.35, "rgba(255, 77, 0, 0.45)");
-gradient1.addColorStop(1, "rgba(255, 77, 0, 0)");
+      gradient1.addColorStop(
+  0,
+  hexToRgba(theme.glow1, 0.95)
+);
+
+gradient1.addColorStop(
+  0.35,
+  hexToRgba(theme.glow1, 0.45)
+);
+
+gradient1.addColorStop(
+  1,
+  hexToRgba(theme.glow1, 0)
+);
 
       ctx.fillStyle = gradient1;
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
@@ -2258,9 +2318,20 @@ gradient1.addColorStop(1, "rgba(255, 77, 0, 0)");
         820 * scale,
         500 * scale
       );
-      gradient2.addColorStop(0, "rgba(255, 157, 0, 0.75)");
-gradient2.addColorStop(0.4, "rgba(255, 100, 0, 0.3)");
-gradient2.addColorStop(1, "rgba(255, 100, 0, 0)");
+      gradient2.addColorStop(
+  0,
+  hexToRgba(theme.glow2, 0.75)
+);
+
+gradient2.addColorStop(
+  0.4,
+  hexToRgba(theme.glow2, 0.3)
+);
+
+gradient2.addColorStop(
+  1,
+  hexToRgba(theme.glow2, 0)
+);
 
       ctx.fillStyle = gradient2;
       ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
@@ -2287,7 +2358,6 @@ if (spiderwebImage.complete && spiderwebImage.naturalWidth > 0) {
   );
 }
 
-
         ctx.save();
         ctx.shadowColor = "rgba(0,0,0,0.28)";
         ctx.shadowBlur = 22 * scale;
@@ -2301,9 +2371,28 @@ if (spiderwebImage.complete && spiderwebImage.naturalWidth > 0) {
           mosaicSize * scale
         );
         ctx.restore();
+		
+
+if (ghostImage.complete && ghostImage.naturalWidth > 0) {
+  const ghostSize = 330 * scale;
+  const offset = ghostSize * 0.25;
+
+  ctx.save();
+  ctx.globalAlpha = 0.33;
+
+  ctx.drawImage(
+    ghostImage,
+    finalCanvas.width - ghostSize + offset,
+    finalCanvas.height - ghostSize + offset,
+    ghostSize,
+    ghostSize
+  );
+
+  ctx.restore();
+}
 
         ctx.textAlign = "center";
-		ctx.fillStyle = "#FFF0D5";
+		ctx.fillStyle = theme.text;
         ctx.font = "600 30px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
         ctx.fillText(
           "fralexander.github.io/bluesquare",
@@ -2331,10 +2420,13 @@ if (spiderwebImage.complete && spiderwebImage.naturalWidth > 0) {
         }, "image/png");
       };
 
-      const logoImg = new Image();
-      logoImg.src = "logo2.png";
+const logoImg = new Image();
+logoImg.src = selectedTheme === "violet"
+  ? "logo3.png"
+  : "logo2.png";
 
-      logoImg.onload = () => {
+logoImg.onload = () => {
+
         const logoSize = 36 * scale;
         const logoSpacing = 16 * scale;
         const textWidth = ctx.measureText("BlueSquare").width;
